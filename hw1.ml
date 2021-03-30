@@ -17,15 +17,19 @@ let rec gcd n m =
      else gcd n (m-n)
 
 
-(* let rec merge l1 l2 =  *)
+let rec merge l1 l2 = 
+  match l1 with
+  | [] -> l2
+  | h1::t1 -> (match l2 with
+              | [] -> l1
+              | h2::t2 -> (if h1 > h2 then [h1] @ merge t1 l2 else [h2] @ merge l1 t2))
   
 
 let rec range n m =
   if n > m then []
   else [n] @ range (n+1) m
 
-(* let rec eval =
-  fun form -> 
+let rec eval form=
     match form with
       | TRUE -> true
       | FALSE -> false
@@ -33,10 +37,12 @@ let rec range n m =
       | ANDALSO (x, y) -> eval(x) && eval(y)
       | ORELSE (x, y) -> eval(x) || eval(y)
       | IMPLY (x,y) -> not(eval(x)) || eval(y)
-      | LESS (exp1, exp2) -> 
-        (match exp1 with
-          | ) *)
-    
+      | LESS (exp1, exp2) -> exp(exp1) < exp(exp2)
+  and exp form = 
+    match form with
+    | NUM x -> x
+    | PLUS (x,y) -> exp(x) + exp(y)
+    | MINUS (x,y) -> exp(x) - exp(y)
     
   
 
@@ -68,12 +74,13 @@ let rec iter n f =
 let rec sigma a b f =
   if a == b then f(b) else f(a) + sigma (a+1) b f
 
-let rec cartesian l1 l2 =
-  match l1 with
-  | [] -> [] 
-  | hd::tl -> (match l2 with
-            | [] -> cartesian tl l2
-            | h2::t2 ->  [(hd,h2)] @(cartesian l1 t2))
+let cartesian l1 l2 =
+  let rec cart ac aa bb =
+    match aa, bb with 
+    | [], _ -> ac
+    | h1::t1, [] -> cart ac t1 l2
+    | h1::t1, h2::t2 -> cart (ac @ [(h1,h2)]) aa t2
+  in cart [] l1 l2;;
   
 
 
