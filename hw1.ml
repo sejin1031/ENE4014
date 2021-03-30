@@ -58,13 +58,10 @@ let rec balanced node =
     | Node(n,l,r) -> if height(l) == height(r) then true else false
 
 
-(* let rec fold3 f a b c d =
-  match b with
-  | [] -> a
-  | hb::tb -> (match c with
-    | [] -> a
-    | hc::tc -> (match d with
-    | hd::td -> fold3 (f f(a hb hc hd) tb tc td))) *)
+let rec fold3 f a b c d =
+  match b,c,d with
+   | [], [], [] -> a
+   | hb::tb, hc::tc, hd::td -> fold3 f (f a hb hc hd) tb tc td
 
 
 let rec iter n f = 
