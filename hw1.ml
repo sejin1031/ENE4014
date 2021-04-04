@@ -94,6 +94,9 @@ let cartesian l1 l2 =
     | h1::t1, h2::t2 -> cart (ac @ [(h1,h2)]) aa t2
   in cart [] l1 l2;;
   
+
+
+  
 let rec contains_all l1 l2 =
 	match l1 with
 	| [] -> true
