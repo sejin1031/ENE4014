@@ -37,26 +37,33 @@ let rec pascal (a,b) =
 
 
 let closest str strlist =
-   let rec compare a b =
-    if (a == "") then (String.length b)
-    else if (b == "") then (String.length a)
-    else if (String.get a 0) = (String.get b 0) then compare (slice a 1 ((String.length a) - 1)) (slice b 1 ((String.length b) - 1))
-    else (1 + min (min (compare (slice a 1 ((String.length a) - 1)) (slice b 1 ((String.length b) - 1)))
-                (compare a (slice b 1 ((String.length b) - 1))) ) 
-                (compare (slice a 1 ((String.length a) - 1)) b))
-    and slice str pos len =
-      if (String.length str) = 1 then ""
-      else (String.sub str pos len)
+   let slice s pos len =
+      if (String.length s) <= 1 then ""
+      else (String.sub s pos len) in
+   let rec dist a b =
+    if (a = "") then (String.length b)
+    else if (b = "") then (String.length a)
+    else if (String.get a 0) = (String.get b 0) then dist (slice a 1 ((String.length a) - 1)) (slice b 1 ((String.length b) - 1))
+    else (1 + min (min (dist (slice a 1 ((String.length a) - 1)) (slice b 1 ((String.length b) - 1)))
+                (dist a (slice b 1 ((String.length b) - 1))) ) 
+                (dist (slice a 1 ((String.length a) - 1)) b));
+    
     in 
-    let rec clo s sl best best_content =
+    let rec clo s sl best best_content = 
     match sl with
     | [] -> best_content
-    | hd::tl -> if((compare s hd) < best) then clo str tl (compare s hd) hd
-                else clo str tl best best_content
-  in (clo str strlist 99999 "")
+    | hd::tl -> if((dist s hd) < best) then clo str tl (dist s hd) hd
+                else clo str tl best best_content in
+      clo str strlist Int.max_int ""
 
 
 
+let equals v1 v2 = 
+    v1 = v2
+
+let test t1 t2 answer =
+  let v = closest t1 t2 in
+  (equals v answer)
 
 
 
@@ -102,11 +109,3 @@ let selflove relationships =
                       if (List.length tmplist) > 0  && not (List.mem hd !self) then (self := hd :: !self ; f tl)else (self := !self; f tl)
         in f startList; List.length !self
         
-type relationships = (string * string) list
-
-let equals v1 v2 = 
-    v1 = v2
-
-let test t1 answer =
-  let v = selflove t1 in
-  (equals v answer)
