@@ -144,23 +144,23 @@ let rec eval : exp -> env -> mem -> value * mem
                             eval e (extend_env (f,e1) (extend_env (x,v) p1)) s2
                             end
     end
-  (* | NEWREF exp ->
+  | NEWREF exp ->
     begin
     let (v,s1) = eval exp env mem in
     let l = (new_location()) in
-    (Loc l, (extend_mem (Loc l,v) s1))
+    (Loc l, (extend_mem (l,v) s1))
     end
   | DEREF exp -> 
     begin
-    let (l,s1) = eval exp env mem in
+    let (Loc l,s1) = eval exp env mem in
     ((apply_mem s1 l), s1)
     end
   | SETREF (exp1, exp2) ->
     begin
-    let (l, s1) = eval exp1 env mem in
+    let (Loc l, s1) = eval exp1 env mem in
     let (v, s2) = eval exp2 env s1 in
-    (v, (extend_mem (Loc l,v) s2))
-    end *)
+    (v, (extend_mem ( l,v) s2))
+    end
   | SEQ (exp1,exp) ->
     begin
     let (v1,s1) = eval exp1 env mem in
