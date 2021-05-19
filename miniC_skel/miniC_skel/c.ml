@@ -85,8 +85,21 @@ let gc: env * mem -> mem
 = fun (env, mem) ->
 	if (not !remove_garbage) then mem 
 	else
-     
-		raise NotImplemented
+    let rec garbage e mem result =
+     match e with
+     | [] -> result
+     | hd::tl -> begin
+      let (var,loc) = hd in
+      let v = begin
+        try 
+          (apply_mem mem loc)
+          with Failure explanation -> (Int 99999999)
+          end
+          in
+      if v != Int (9999999) then garbage tl mem [(loc,(v))]@result
+      else garbage tl mem result
+     end
+      in garbage env mem []
 
 let rec eval : program -> env -> mem -> (value * mem)
 =fun pgm env mem ->  
@@ -192,8 +205,10 @@ let rec eval : program -> env -> mem -> (value * mem)
 			let (v, s1) = eval exp env mem in
 			(v, (extend_mem ((apply_env env var),v) s1))
 			end
-	| RECORD list ->
+	(* | RECORD list ->
     begin
+    if (List.length) list = 0 then (Unit, mem)
+    else
     let rec record list result mem =
       match list with
       | [] -> (RECORD result,mem)
@@ -201,16 +216,16 @@ let rec eval : program -> env -> mem -> (value * mem)
       begin
         let (var,exp) = hd in
         let (v,s) = eval exp env mem in
-        let l = (new_location()) in
-        record tl ([Loc l]@result) (extend_mem (l,v) s)
+        let l = Loc (new_location()) in
+        record tl ([(var,l)]@ Record result) (extend_mem (l,v) s)
       end
       in
       record list [] mem
-    end
+    end *)
   | FIELD (exp, var) ->
     begin
       let (r,s1) = eval exp env mem in
-      ((apply_mem s1 (apply_env env r var)), s1)
+      ((apply_mem (apply_env r var) s1), s1)
     end
   | ASSIGNF (exp1, var, exp2) ->
     begin
