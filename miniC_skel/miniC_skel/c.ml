@@ -205,33 +205,44 @@ let rec eval : program -> env -> mem -> (value * mem)
 			let (v, s1) = eval exp env mem in
 			(v, (extend_mem ((apply_env env var),v) s1))
 			end
-	(* | RECORD list ->
+	| RECORD list ->
     begin
-    if (List.length) list = 0 then (Unit, mem)
+    if ((List.length) list) = 0 then (Unit, mem)
     else
-    let rec record list result mem =
+    let rec record list result mem1 = (
       match list with
-      | [] -> (RECORD result,mem)
-      | hd::tl -> 
+      | [] -> (result,mem1)
+      | (hd::tl) -> 
       begin
         let (var,exp) = hd in
-        let (v,s) = eval exp env mem in
-        let l = Loc (new_location()) in
-        record tl ([(var,l)]@ Record result) (extend_mem (l,v) s)
+        let (v,s) = eval exp env mem1 in
+        let l = (new_location()) in
+        record tl ([(var,l)]@ result) (extend_mem (l,v) s)
       end
+    )
       in
-      record list [] mem
-    end *)
+      let (result, m) = record list ([]) mem in
+      ((Record result), m)
+    end
   | FIELD (exp, var) ->
     begin
-      let (r,s1) = eval exp env mem in
-      ((apply_mem (apply_env r var) s1), s1)
+      let rec findField : value -> loc = fun r -> (
+      match r with
+      | Record ((v,l)::tl) -> if var = v then (l) else (findField (Record tl))
+    ) in
+      let (r,s1) = (eval exp env mem) in
+      let l = (findField r) in
+      ((apply_mem s1 l),s1)
     end
   | ASSIGNF (exp1, var, exp2) ->
     begin
+    let rec findField : value -> loc = fun r -> (
+      match r with
+      | Record ((v,l)::tl) -> if var = v then (l) else (findField (Record tl))
+    ) in
       let (r,s1) = eval exp1 env mem in
       let (v,s2) = eval exp2 env s1 in
-      (v, extend_mem ((apply_env r var),v), s2)
+      (v, (extend_mem ((findField r),v) s2))
     end
   | SEQ (exp1,exp) ->
     begin
