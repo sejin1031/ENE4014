@@ -174,6 +174,7 @@ let rec unify: typ -> typ -> Subst.t -> Subst.t
   let t2 = Subst.apply b2 s1 in
   unify t1 t2 s1
   end
+  | _ -> raise TypeError
 
 let rec unifyall tyeqn sub =
   match tyeqn with

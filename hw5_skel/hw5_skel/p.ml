@@ -14,31 +14,31 @@ let rec poly: exp -> EEnv.t -> exp
  | TRUE -> TRUE
  | FALSE -> FALSE
  | CONST x -> CONST x
- | VAR x -> EEnv.find eenv x
+ | VAR x -> begin try EEnv.find eenv x with (Failure "Exp Env is empty") -> VAR x end
  | ADD (e1, e2) -> ADD ((poly e1 eenv),(poly e2 eenv))
  | SUB (e1, e2) -> SUB ((poly e1 eenv),(poly e2 eenv))
  | MUL (e1, e2) -> MUL ((poly e1 eenv),(poly e2 eenv))
  | DIV (e1, e2) -> DIV ((poly e1 eenv),(poly e2 eenv))
  | ISZERO (e1) -> ISZERO (poly e1 eenv)
- | READ -> CONST (read_int())
+ | READ -> poly (CONST (read_int())) eenv
  | IF (e1, e2, e3) -> IF ((poly e1 eenv), (poly e2 eenv), (poly e3 eenv))
  | LET (var, e1, e2) -> 
   begin
     let e3 = poly e1 eenv in
     poly e2 (EEnv.extend (var,e3) eenv)
   end
- (* | LETREC (f,x,e1,e2) -> 
+ | LETREC (f,x,e1,e2) -> 
  begin
-  let tx = poly e1 eenv in
-  let 
+  let e3 = poly e1 eenv in
+  LETREC (f, x, e3, e2)
   
- end *)
+ end
  | PROC (var, e1) -> PROC (var, (poly e1 eenv))
  | CALL (e1, e2) -> CALL ((poly e1 eenv), (poly e2 eenv))
 
 let expand: exp -> exp 
 = fun exp -> 
-  poly exp EEnv.empty
+  (poly exp EEnv.empty)
   (* raise (Failure "NotImplemented")		 *)
 
 
